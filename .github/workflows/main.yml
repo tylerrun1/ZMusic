@@ -1,0 +1,34 @@
+name: Snapshot Release
+
+on:
+  push:
+    paths:
+      - "**.kt"
+      - "**.kts"
+      - "**.java"
+      - "gradle/libs.versions.toml"
+    branches:
+      - "v3"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Setup Gradle
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew :zmusic-plugin:clean zmusic-plugin:build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'ZMusic Snapshot'
+          path: |
+            zmusic-bridge/build/libs/**.jar
+            zmusic-plugin/build/libs/ZMusic*all.jar
